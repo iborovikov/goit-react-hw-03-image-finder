@@ -1,15 +1,12 @@
-import { Component } from "react";
 import ImageGalleryItem from './ImageGalleryItem'
 import s from './imageGallery.module.css'
 
-class ImageGallery extends Component {
-    render() {
+const ImageGallery = ({pictures, openModal, findLargeImgSrc}) => {
         return (
             <ul className={s.ImageGallery}>
-                <ImageGalleryItem />
+                <ImageGalleryItem pictures={ pictures } openModal={ openModal } findLargeImgSrc={findLargeImgSrc }/>
             </ul>
         );
-    };
 };
 
 export default ImageGallery;

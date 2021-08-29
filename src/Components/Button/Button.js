@@ -1,9 +1,15 @@
 import s from './button.module.css'
 
 
-const Button = () => {
+const Button = ({ fetchForMorePictures }) => {
+
+    const onBtnClick = () => {
+
+        fetchForMorePictures()
+    }
+    
     return (
-        <button type='button' className={s.Button}>Load more</button>
+        <button type='button' className={s.Button} onClick={onBtnClick}>Load more</button>
     );
 };
 

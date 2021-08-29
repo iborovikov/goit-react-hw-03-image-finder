@@ -1,14 +1,16 @@
-import { Component } from "react";
+
 import s from './imageGallery.module.css'
 
-class ImageGalleryItem extends Component {
-    render() {
-        return (
-            <li className={s.ImageGalleryItem}>
-                <img src="" alt="" className={s.ImageGalleryItemImage} />
-            </li>
-        );
-    }
-}
+const ImageGalleryItem = ({ pictures, openModal, findLargeImgSrc }) => {
 
-export default ImageGalleryItem;
+    const onPictureClick = (e) => {
+       const normalizedId = Number(e.currentTarget.id)
+       findLargeImgSrc(normalizedId);
+       openModal();
+    }
+    return (pictures.map(picture =>
+        <li key={picture.id} className={s.ImageGalleryItem} id={picture.id} onClick={onPictureClick}>
+            <img src={picture.webformatURL} alt="foto" className={s.ImageGalleryItemImage} />
+        </li>));
+};
+export default ImageGalleryItem
