@@ -2,20 +2,15 @@ import s from './button.module.css'
 import PropTypes from 'prop-types';
 
 
-const Button = ({ fetchForMorePictures }) => {
+const Button = ({ setPageNumber }) => {
 
-    const onBtnClick = () => {
-        fetchForMorePictures();
-    };
-    
     return (
-        <button type='button' className={s.Button} onClick={onBtnClick}>Load more</button>
+        <button type='button' className={s.Button} onClick={() => setPageNumber()}>Load more</button>
     );
 };
 
 export default Button;
 
 Button.propTypes = {
-  fetchForMorePictures: PropTypes.func.isRequired,
-  
+  setPageNumber: PropTypes.func.isRequired,
 };

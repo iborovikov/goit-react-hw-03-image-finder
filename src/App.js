@@ -1,48 +1,49 @@
 import { Component } from 'react';
 import Loader from "react-loader-spinner";
 import './App.css';
+import fetchPictures from './services';
 import SearchBar from './Components/Searchbar/SearchBar';
 import ImageGallery from './Components/ImageGallery/ImageGallery';
 import Button from './Components/Button/Button';
 import Modal from './Components/Modal/Modal'
 
-const KEY = '23129863-59f8a41eed57593cb3097b5c2'
 
 class App extends Component {
   state = {
-    pictures: null,
+    pictures: [],
     status: 'idle',
     showModal: false,
-    largePicture: null,
-    requiredItem: '',
-    pageNumber: 2,
-    error: null
+    largeImg: null,
+    query: '',
+    pageNumber: 1,
+    error: 'Nothing found'
   };
 
   componentDidUpdate(prevProps, prevState) {
-    if (prevState.pictures !== this.state.pictures) {
-      window.scrollTo({
-        top: document.documentElement.scrollHeight,
-        behavior: 'smooth',
-      });
+    if (prevState.query !== this.state.query || prevState.pageNumber !== this.state.pageNumber) {
+      fetchPictures.call(this)
+    };
+    if (this.state.pageNumber > 1) {
+      this.scrollDown();
     };
   };
 
-  setStatus(status) {
-    this.setState({ status });
-  };
-
-  setRequiredItem = (requiredItem) => {
-    this.setState({ requiredItem });
+  scrollDown = () => {
+    window.scrollTo({
+      top: document.documentElement.scrollHeight,
+      behavior: 'smooth',
+    });
   };
 
   setPageNumber = () => {
     this.setState(prevState => ({ pageNumber: prevState.pageNumber + 1 }));
   };
 
-  findLargeImgSrc = (id) => {
+  openLargeImg = (id) => {
     const picture = this.state.pictures.find(picture => picture.id === id);
-    this.setState({ largePicture: picture });
+    this.setState({ largeImg: picture})
+    this.toggleModal();
+  
   };
 
   toggleModal = () => {
@@ -51,34 +52,18 @@ class App extends Component {
     }));
   };
 
-  firstFetch = (requiredItem) => {
-    fetch(`https://pixabay.com/api/?q=${requiredItem}&page=1&key=${KEY}&image_type=photo&orientation=horizontal&per_page=12`)
-      .then(res => res.json())
-      .then(pictures => this.setState({ pictures: pictures.hits, status: 'resolved' }))
-      .catch(error => this.setState({ error, status: 'rejected' }));
-  };
-
-  fetchForMorePictures = () => {
-    this.setStatus('pending')
-    fetch(`https://pixabay.com/api/?q=${this.state.requiredItem}&page=${this.state.pageNumber}&key=${KEY}&image_type=photo&orientation=horizontal&per_page=12`)
-      .then(res => res.json())
-      .then(pictures => this.setState(prevState => ({
-        pictures: [...prevState.pictures, ...pictures.hits],
-        status: 'resolved'
-      })))
-      .catch(error => this.setState({error, status: 'rejected'}));
-    this.setPageNumber();
-  };
-
-  onSubmit = (requiredItem) => {
-    this.setRequiredItem(requiredItem);
-    this.firstFetch(requiredItem);
+  onSubmit = (query) => {
+    this.setState({
+      pictures: [],
+      pageNumber: 1,
+      query
+    });
   };
 
   render() {
 
-    const { status, pictures, showModal, largePicture, error } = this.state
-    const { onSubmit, toggleModal, findLargeImgSrc, fetchForMorePictures} = this
+    const { status, pictures, showModal, largeImg, error } = this.state
+    const { onSubmit, toggleModal, openLargeImg, setPageNumber} = this
 
     if (status === 'idle') {
       return (<div className='container'>
@@ -90,7 +75,7 @@ class App extends Component {
       return (
         <div className='container'>
           <SearchBar onSubmit={onSubmit} />
-          <ImageGallery pictures={pictures} openModal={toggleModal} findLargeImgSrc={findLargeImgSrc} />
+          <ImageGallery pictures={pictures} openLargeImg={openLargeImg} />
           <div className='loader'>
             <Loader type="ThreeDots" color="#3f51b5" height={80} width={80} />
           </div>
@@ -102,9 +87,9 @@ class App extends Component {
       return (
         <div className='container'>
           <SearchBar onSubmit={onSubmit} />
-          {<ImageGallery pictures={pictures} openModal={toggleModal} findLargeImgSrc={findLargeImgSrc} />}
-          {<Button fetchForMorePictures={fetchForMorePictures} />}
-          {showModal && <Modal closeModal={toggleModal} pictureData={largePicture} />}
+          {<ImageGallery pictures={pictures} openLargeImg={openLargeImg} />}
+          {<Button setPageNumber={setPageNumber} />}
+          {showModal && <Modal closeModal={toggleModal} pictureData={largeImg} />}
         </div>
         
       );
